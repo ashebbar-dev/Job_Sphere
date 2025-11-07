@@ -22,7 +22,14 @@ def create_app():
 
     # Register blueprints
     from auth import auth_bp
+    from routes.tpo import tpo_bp
+    from routes.hod import hod_bp
+    from routes.student import student_bp
+
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(tpo_bp, url_prefix='/api/tpo')
+    app.register_blueprint(hod_bp, url_prefix='/api/hod')
+    app.register_blueprint(student_bp, url_prefix='/api/student')
 
     # Create database tables
     with app.app_context():
