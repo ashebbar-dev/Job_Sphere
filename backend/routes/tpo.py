@@ -8,38 +8,55 @@ import os
 
 tpo_bp = Blueprint('tpo', __name__)
 
+@tpo_bp.route('/test', methods=['GET'])
+@jwt_required()
+def test_endpoint():
+    print("Test endpoint called successfully!")
+    user_id = int(get_jwt_identity())
+    print(f"User ID: {user_id}")
+    return jsonify({'message': 'Test successful', 'user_id': user_id}), 200
+
 @tpo_bp.route('/companies', methods=['POST'])
 @jwt_required()
 @role_required(['tpo'])
 def create_company():
-    data = request.get_json()
+    try:
+        data = request.get_json()
 
-    company = Company(
-        name=data['name'],
-        website=data.get('website'),
-        industry=data.get('industry'),
-        description=data.get('description')
-    )
+        company = Company(
+            name=data['name'],
+            website=data.get('website'),
+            industry=data.get('industry'),
+            description=data.get('description')
+        )
 
-    db.session.add(company)
-    db.session.commit()
+        db.session.add(company)
+        db.session.commit()
 
-    return jsonify({
-        'message': 'Company created',
-        'company_id': company.id
-    }), 201
+        return jsonify({
+            'message': 'Company created',
+            'company_id': company.id
+        }), 201
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error creating company: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
 @tpo_bp.route('/companies', methods=['GET'])
 @jwt_required()
 def get_companies():
-    companies = Company.query.all()
+    try:
+        companies = Company.query.all()
 
-    return jsonify([{
-        'id': c.id,
-        'name': c.name,
-        'website': c.website,
-        'industry': c.industry
-    } for c in companies]), 200
+        return jsonify([{
+            'id': c.id,
+            'name': c.name,
+            'website': c.website,
+            'industry': c.industry
+        } for c in companies]), 200
+    except Exception as e:
+        print(f"Error getting companies: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
 @tpo_bp.route('/drives', methods=['POST'])
 @jwt_required()
@@ -57,7 +74,7 @@ def create_drive():
         location=data.get('location'),
         drive_date=datetime.fromisoformat(data['drive_date']) if data.get('drive_date') else None,
         registration_deadline=datetime.fromisoformat(data['registration_deadline']) if data.get('registration_deadline') else None,
-        created_by=get_jwt_identity()
+        created_by=int(get_jwt_identity())
     )
 
     db.session.add(drive)
@@ -71,18 +88,22 @@ def create_drive():
 @tpo_bp.route('/drives', methods=['GET'])
 @jwt_required()
 def get_drives():
-    drives = PlacementDrive.query.all()
+    try:
+        drives = PlacementDrive.query.all()
 
-    return jsonify([{
-        'id': d.id,
-        'company_name': d.company.name,
-        'job_title': d.job_title,
-        'ctc': d.ctc,
-        'location': d.location,
-        'drive_date': d.drive_date.isoformat() if d.drive_date else None,
-        'status': d.status,
-        'applications_count': len(d.applications)
-    } for d in drives]), 200
+        return jsonify([{
+            'id': d.id,
+            'company_name': d.company.name,
+            'job_title': d.job_title,
+            'ctc': d.ctc,
+            'location': d.location,
+            'drive_date': d.drive_date.isoformat() if d.drive_date else None,
+            'status': d.status,
+            'applications_count': len(d.applications)
+        } for d in drives]), 200
+    except Exception as e:
+        print(f"Error getting drives: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 
 @tpo_bp.route('/drives/<int:drive_id>', methods=['GET'])
 @jwt_required()

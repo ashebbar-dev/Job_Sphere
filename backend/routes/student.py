@@ -11,7 +11,7 @@ student_bp = Blueprint('student', __name__)
 @jwt_required()
 @role_required(['student'])
 def get_profile():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     student = Student.query.filter_by(user_id=user_id).first_or_404()
 
     return jsonify({
@@ -31,7 +31,7 @@ def get_profile():
 @jwt_required()
 @role_required(['student'])
 def update_profile():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     student = Student.query.filter_by(user_id=user_id).first_or_404()
     data = request.get_json()
 
@@ -52,7 +52,7 @@ def update_profile():
 @jwt_required()
 @role_required(['student'])
 def upload_resume():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     student = Student.query.filter_by(user_id=user_id).first_or_404()
 
     if 'file' not in request.files:
@@ -80,7 +80,7 @@ def upload_resume():
 @jwt_required()
 @role_required(['student'])
 def get_available_drives():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     student = Student.query.filter_by(user_id=user_id).first_or_404()
 
     # Get drives student is eligible for and hasn't applied to
@@ -122,7 +122,7 @@ def get_available_drives():
 @jwt_required()
 @role_required(['student'])
 def get_my_applications():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     student = Student.query.filter_by(user_id=user_id).first_or_404()
 
     applications = Application.query.filter_by(student_id=student.id).all()
@@ -141,7 +141,7 @@ def get_my_applications():
 @jwt_required()
 @role_required(['student'])
 def download_offer_letter(app_id):
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     student = Student.query.filter_by(user_id=user_id).first_or_404()
 
     application = Application.query.filter_by(id=app_id, student_id=student.id).first_or_404()

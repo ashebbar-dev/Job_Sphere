@@ -10,7 +10,7 @@ hod_bp = Blueprint('hod', __name__)
 @jwt_required()
 @role_required(['hod'])
 def get_pending_students():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     hod = HOD.query.filter_by(user_id=user_id).first()
 
     students = Student.query.filter_by(
@@ -33,7 +33,7 @@ def get_pending_students():
 @jwt_required()
 @role_required(['hod'])
 def approve_student(student_id):
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     student = Student.query.get_or_404(student_id)
 
     student.is_approved = True
@@ -75,7 +75,7 @@ def update_student(student_id):
 @jwt_required()
 @role_required(['hod'])
 def get_department_stats():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     hod = HOD.query.filter_by(user_id=user_id).first()
 
     total_students = Student.query.filter_by(department=hod.department).count()
@@ -99,7 +99,7 @@ def get_department_stats():
 @jwt_required()
 @role_required(['hod'])
 def get_placement_report():
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     hod = HOD.query.filter_by(user_id=user_id).first()
 
     # Get all placed students in department
